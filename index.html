@@ -8,12 +8,11 @@
         body {
             margin: 0;
             background: black;
-            overflow: auto;
+            overflow: hidden;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            cursor: none;
         }
 
         #particleCanvas {
@@ -28,61 +27,29 @@
         .logo-container {
             position: relative;
             z-index: 2;
-            transition: transform 0.1s ease-out;
+            transition: transform 0.1s linear;
+            width: 60vh;
+            height: 60vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .logo {
             max-width: 100%;
             height: auto;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.1));
             transition: all 0.3s ease;
             transform-origin: center;
-        }
-
-        .custom-cursor {
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-            mix-blend-mode: difference;
-            transition: width 0.3s, height 0.3s;
-        }
-
-        .custom-cursor::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(2);
-                opacity: 0;
-            }
+            width: 40vh;
         }
     </style>
 </head>
 <body>
     <canvas id="particleCanvas"></canvas>
     <div class="logo-container">
-        <img src="mosterahertz_logo_shout.webp" alt="MosTerahertz Logo" class="logo">
+        <img src="images/mosterahertz_logo_shout.webp" alt="MosTerahertz Logo" class="logo">
     </div>
-    <div class="custom-cursor"></div>
     <script>
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
@@ -202,52 +169,21 @@
         // Logo interaction
         const logo = document.querySelector('.logo');
         const logoContainer = document.querySelector('.logo-container');
-        const cursor = document.querySelector('.custom-cursor');
         let logoX = 0;
         let logoY = 0;
 
-        function updateLogoPosition() {
-            const rect = logoContainer.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
+        function updateLogoPosition(e) {
+            const x = (e.clientX / window.innerWidth - 0.5) * 2;
+            const y = (e.clientY / window.innerHeight - 0.5) * 2;
             
-            // Calculate distance from cursor to logo center
-            const dx = mouseX - centerX;
-            const dy = mouseY - centerY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            // Calculate rotation based on cursor position
-            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-            
-            // Calculate movement and scale based on distance
-            const maxDistance = 300;
-            const moveFactor = Math.min(1, distance / maxDistance);
-            const scaleFactor = 1 + (1 - moveFactor) * 0.1;
-            
-            // Apply transformations
-            logoContainer.style.transform = `
-                translate(${dx * 0.1}px, ${dy * 0.1}px)
-                rotate(${angle * 0.1}deg)
-                scale(${scaleFactor})
-            `;
-            
-            // Update glow effect
-            const glowIntensity = 1 - moveFactor;
-            logo.style.filter = `
-                drop-shadow(0 0 ${10 + glowIntensity * 20}px rgba(255, 255, 255, ${0.3 + glowIntensity * 0.7}))
-            `;
-            
-            // Update cursor size
-            cursor.style.width = `${20 + (1 - moveFactor) * 30}px`;
-            cursor.style.height = `${20 + (1 - moveFactor) * 30}px`;
+            logoContainer.style.transform = `translate(${x * 10}px, ${y * 10}px)`;
+            logo.style.transform = `rotateX(${y * 30}deg) rotateY(${x * 30}deg)`;
         }
 
         document.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
-            cursor.style.left = mouseX + 'px';
-            cursor.style.top = mouseY + 'px';
-            updateLogoPosition();
+            updateLogoPosition(e);
         });
 
         window.addEventListener('resize', init);
